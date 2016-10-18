@@ -146,6 +146,30 @@ var factory = function(Web3) {
         });
       });
     }
+
+    /**
+     * Override of HttpProvider - injects BlockOne token if present
+     *
+     * @method prepareRequest
+     * @param {Boolean} true if request should be async
+     * @return {XMLHttpRequest} object
+     */
+    prepareRequest(async) {
+        var request = super.prepareRequest(async);
+        if (!super.host.match(/^https:/)) {
+          console.error("Refusing to send AUTHBAR.TOKEN over insecure connection");
+          return request;
+        }
+        try {
+          var token = sessionStorage.getItem('AUTHBAR.TOKEN');
+          token = JSON.parse(token).blockone;
+          if (!token) throw false;
+          request.setRequestHeader('Authorization','Bearer '+token);
+        } catch (dummy) {
+          console.error("No token found in sessionStorage AUTHBAR.TOKEN so sending request without token");
+        }
+        return request;
+    }
   }
 
   return HookedWeb3Provider;
