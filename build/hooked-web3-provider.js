@@ -1,3 +1,5 @@
+
+
 "use strict";
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
@@ -216,17 +218,26 @@ var factory = function factory(Web3) {
       key: "prepareRequest",
       value: function prepareRequest(async) {
         var request = _get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "prepareRequest", this).call(this, async);
-        if (!_get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "host", this).match(/^https:/)) {
-          console.error("Refusing to send AUTHBAR.TOKEN over insecure connection");
+        if (!this.host.match(/^https:/)) {
+          // console.error("Refusing to send auth token over insecure connection");
           return request;
         }
+        var token;
         try {
-          var token = sessionStorage.getItem('AUTHBAR.TOKEN');
-          token = JSON.parse(token).blockone;
-          if (!token) throw false;
+          var t = sessionStorage.getItem('AUTHBAR.TOKEN');
+          token = JSON.parse(t).blockone;
+        } catch (dummy) {}
+
+        if (!token) {
+          try {
+            token = process.env.WALLET_TOKEN;
+          } catch (dummy) {}
+        }
+
+        if (token) {
           request.setRequestHeader('Authorization', 'Bearer ' + token);
-        } catch (dummy) {
-          console.error("No token found in sessionStorage AUTHBAR.TOKEN so sending request without token");
+        } else {
+          // console.error("No token found in sessionStorage AUTHBAR.TOKEN or env.WALLET_TOKEN so sending request without token");
         }
         return request;
       }

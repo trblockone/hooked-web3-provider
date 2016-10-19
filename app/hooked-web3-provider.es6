@@ -156,17 +156,26 @@ var factory = function(Web3) {
      */
     prepareRequest(async) {
         var request = super.prepareRequest(async);
-        if (!super.host.match(/^https:/)) {
-          console.error("Refusing to send AUTHBAR.TOKEN over insecure connection");
+        if (!this.host.match(/^https:/)) {
+          // console.error("Refusing to send auth token over insecure connection");
           return request;
         }
+        var token;
         try {
-          var token = sessionStorage.getItem('AUTHBAR.TOKEN');
-          token = JSON.parse(token).blockone;
-          if (!token) throw false;
+          var t = sessionStorage.getItem('AUTHBAR.TOKEN');
+          token = JSON.parse(t).blockone;
+        } catch (dummy) {}
+
+        if (!token) {
+          try {
+            token = process.env.WALLET_TOKEN;
+          } catch (dummy) {}
+        }
+
+        if (token) {
           request.setRequestHeader('Authorization','Bearer '+token);
-        } catch (dummy) {
-          console.error("No token found in sessionStorage AUTHBAR.TOKEN so sending request without token");
+        } else {
+          // console.error("No token found in sessionStorage AUTHBAR.TOKEN or env.WALLET_TOKEN so sending request without token");
         }
         return request;
     }
