@@ -224,12 +224,14 @@ var factory = function factory(Web3) {
         }
         var token;
         try {
+          if (!sessionStorage.getItem('INJECT_AUTH')) throw null;
           var t = sessionStorage.getItem('AUTHBAR.TOKEN');
           token = JSON.parse(t).blockone;
         } catch (dummy) {}
 
         if (!token) {
           try {
+            if (!process.env.INJECT_AUTH) throw null;
             token = process.env.WALLET_TOKEN;
           } catch (dummy) {}
         }
