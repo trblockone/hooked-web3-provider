@@ -2,17 +2,19 @@
 
 "use strict";
 
-var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
-var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; desc = parent = getter = undefined; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+var _get = function get(object, property, receiver) { if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { return get(parent, property, receiver); } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } };
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+function _possibleConstructorReturn(self, call) { if (!self) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return call && (typeof call === "object" || typeof call === "function") ? call : self; }
 
 function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 var factory = function factory(Web3) {
-  var HookedWeb3Provider = (function (_Web3$providers$HttpProvider) {
-    _inherits(HookedWeb3Provider, _Web3$providers$HttpProvider);
+  var HookedWeb3Provider = function (_Web3$providers$HttpP) {
+    _inherits(HookedWeb3Provider, _Web3$providers$HttpP);
 
     function HookedWeb3Provider(_ref) {
       var host = _ref.host;
@@ -20,21 +22,24 @@ var factory = function factory(Web3) {
 
       _classCallCheck(this, HookedWeb3Provider);
 
-      _get(Object.getPrototypeOf(HookedWeb3Provider.prototype), "constructor", this).call(this, host);
-      this.transaction_signer = transaction_signer;
+      var _this = _possibleConstructorReturn(this, (HookedWeb3Provider.__proto__ || Object.getPrototypeOf(HookedWeb3Provider)).call(this, host));
+
+      _this.transaction_signer = transaction_signer;
 
       // Cache of the most up to date transaction counts (nonces) for each address
       // encountered by the web3 provider that's managed by the transaction signer.
-      this.global_nonces = {};
+      _this.global_nonces = {};
+      return _this;
     }
 
     // We can't support *all* synchronous methods because we have to call out to
     // a transaction signer. So removing the ability to serve any.
 
+
     _createClass(HookedWeb3Provider, [{
       key: "send",
       value: function send(payload, callback) {
-        var _this = this;
+        var _this2 = this;
 
         var requests = payload;
         if (!(requests instanceof Array)) {
@@ -58,8 +63,8 @@ var factory = function factory(Web3) {
           _iteratorError = err;
         } finally {
           try {
-            if (!_iteratorNormalCompletion && _iterator["return"]) {
-              _iterator["return"]();
+            if (!_iteratorNormalCompletion && _iterator.return) {
+              _iterator.return();
             }
           } finally {
             if (_didIteratorError) {
@@ -68,8 +73,9 @@ var factory = function factory(Web3) {
           }
         }
 
-        var finishedWithRewrite = function finishedWithRewrite() {
-          return _get(Object.getPrototypeOf(HookedWeb3Provider.prototype), "send", _this).call(_this, payload, callback);
+        var finishedWithRewrite = function finishedWithRewrite(err) {
+          if (err) return callback(err);
+          return _get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "send", _this2).call(_this2, payload, callback);
         };
 
         return this.rewritePayloads(0, requests, {}, finishedWithRewrite);
@@ -78,13 +84,15 @@ var factory = function factory(Web3) {
       // Catch the requests at the sendAsync level, rewriting all sendTransaction
       // methods to sendRawTransaction, calling out to the transaction_signer to
       // get the data for sendRawTransaction.
+
     }, {
       key: "sendAsync",
       value: function sendAsync(payload, callback) {
-        var _this2 = this;
+        var _this3 = this;
 
-        var finishedWithRewrite = function finishedWithRewrite() {
-          _get(Object.getPrototypeOf(HookedWeb3Provider.prototype), "sendAsync", _this2).call(_this2, payload, callback);
+        var finishedWithRewrite = function finishedWithRewrite(err) {
+          if (err) return callback(err);
+          _get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "sendAsync", _this3).call(_this3, payload, callback);
         };
 
         var requests = payload;
@@ -98,10 +106,11 @@ var factory = function factory(Web3) {
 
       // Rewrite all eth_sendTransaction payloads in the requests array.
       // This takes care of batch requests, and updates the nonces accordingly.
+
     }, {
       key: "rewritePayloads",
       value: function rewritePayloads(index, requests, session_nonces, finished) {
-        var _this3 = this;
+        var _this4 = this;
 
         if (index >= requests.length) {
           return finished();
@@ -114,7 +123,7 @@ var factory = function factory(Web3) {
           if (err != null) {
             return finished(err);
           }
-          return _this3.rewritePayloads(index + 1, requests, session_nonces, finished);
+          return _this4.rewritePayloads(index + 1, requests, session_nonces, finished);
         };
 
         // If this isn't a transaction we can modify, ignore it.
@@ -145,7 +154,7 @@ var factory = function factory(Web3) {
               // hence the need for global_nonces.
               // We call directly to our own sendAsync method, because the web3 provider
               // is not guaranteed to be set.
-              _this3.sendAsync({
+              _this4.sendAsync({
                 jsonrpc: '2.0',
                 method: 'eth_getTransactionCount',
                 params: [sender, "pending"],
@@ -173,18 +182,18 @@ var factory = function factory(Web3) {
             // Note that if our session nonce is lower than what we have cached
             // across all transactions (and not just this batch) use our cached
             // version instead, even if
-            var final_nonce = Math.max(nonce, _this3.global_nonces[sender] || 0);
+            var final_nonce = Math.max(nonce, _this4.global_nonces[sender] || 0);
 
             // Update the transaction parameters.
             tx_params.nonce = Web3.prototype.toHex(final_nonce);
 
             // Update caches.
             session_nonces[sender] = final_nonce + 1;
-            _this3.global_nonces[sender] = final_nonce + 1;
+            _this4.global_nonces[sender] = final_nonce + 1;
 
             // If our transaction signer does represent the address,
             // sign the transaction ourself and rewrite the payload.
-            _this3.transaction_signer.signTransaction(tx_params, function (err, raw_tx) {
+            _this4.transaction_signer.signTransaction(tx_params, function (err, raw_tx) {
               if (err != null) {
                 return next(err);
               }
@@ -199,7 +208,7 @@ var factory = function factory(Web3) {
     }]);
 
     return HookedWeb3Provider;
-  })(Web3.providers.HttpProvider);
+  }(Web3.providers.HttpProvider);
 
   return HookedWeb3Provider;
 };
