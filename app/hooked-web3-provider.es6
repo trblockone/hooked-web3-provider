@@ -12,7 +12,7 @@ var factory = function(Web3) {
 
     // We can't support *all* synchronous methods because we have to call out to
     // a transaction signer. So removing the ability to serve any.
-    send(payload, callback) {
+    send(payload) {
       var requests = payload;
       if (!(requests instanceof Array)) {
         requests = [requests];
@@ -24,12 +24,7 @@ var factory = function(Web3) {
         }
       }
 
-      var finishedWithRewrite = (err) => {
-        if (err) return callback({source:"txsigning",error:err});
-        return super.send(payload, callback);
-      };
-
-      return this.rewritePayloads(0, requests, {}, finishedWithRewrite);
+      return super.send(payload);
     }
 
     // Catch the requests at the sendAsync level, rewriting all sendTransaction
