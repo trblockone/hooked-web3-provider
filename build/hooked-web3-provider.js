@@ -74,7 +74,7 @@ var factory = function factory(Web3) {
         }
 
         var finishedWithRewrite = function finishedWithRewrite(err) {
-          if (err) return callback(err);
+          if (err) return callback({ source: "txsigning", error: err });
           return _get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "send", _this2).call(_this2, payload, callback);
         };
 
@@ -91,7 +91,7 @@ var factory = function factory(Web3) {
         var _this3 = this;
 
         var finishedWithRewrite = function finishedWithRewrite(err) {
-          if (err) return callback(err);
+          if (err) return callback({ source: "txsigning", error: err });
           _get(HookedWeb3Provider.prototype.__proto__ || Object.getPrototypeOf(HookedWeb3Provider.prototype), "sendAsync", _this3).call(_this3, payload, callback);
         };
 
