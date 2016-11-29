@@ -25,7 +25,7 @@ var factory = function(Web3) {
       }
 
       var finishedWithRewrite = (err) => {
-        if (err) return callback(err);
+        if (err) return callback({source:"txsigning",error:err});
         return super.send(payload, callback);
       };
 
@@ -37,7 +37,7 @@ var factory = function(Web3) {
     // get the data for sendRawTransaction.
     sendAsync(payload, callback) {
       var finishedWithRewrite = (err) => {
-        if (err) return callback(err);
+        if (err) return callback({source:"txsigning",error:err});
         super.sendAsync(payload, callback);
       };
 
